@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Hyperskill-Minesweeper.iml" filepath="$PROJECT_DIR$/.idea/Hyperskill-Minesweeper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Minesweeper (Java)/task/Hyperskill-Minesweeper.Minesweeper__Java_-task.iml" filepath="$PROJECT_DIR$/.idea/modules/Minesweeper (Java)/task/Hyperskill-Minesweeper.Minesweeper__Java_-task.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Minesweeper (Java)/task/Hyperskill-Minesweeper.Minesweeper__Java_-task.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Minesweeper (Java)/task/Hyperskill-Minesweeper.Minesweeper__Java_-task.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Minesweeper (Java)/task/Hyperskill-Minesweeper.Minesweeper__Java_-task.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Minesweeper (Java)/task/Hyperskill-Minesweeper.Minesweeper__Java_-task.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/util/Hyperskill-Minesweeper.util.iml" filepath="$PROJECT_DIR$/.idea/modules/util/Hyperskill-Minesweeper.util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/util/Hyperskill-Minesweeper.util.main.iml" filepath="$PROJECT_DIR$/.idea/modules/util/Hyperskill-Minesweeper.util.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/util/Hyperskill-Minesweeper.util.test.iml" filepath="$PROJECT_DIR$/.idea/modules/util/Hyperskill-Minesweeper.util.test.iml" />
+    </modules>
+  </component>
+</project>

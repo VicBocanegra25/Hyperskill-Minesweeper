@@ -1,0 +1,23 @@
+type: edu
+files:
+  - name: src/minesweeper/Main.java
+    visible: true
+    learner_created: false
+  - name: test/MinesweeperTest.java
+    visible: false
+    learner_created: false
+  - name: src/minesweeper/entity/Cell.java
+    visible: true
+    learner_created: true
+  - name: src/minesweeper/entity/Board.java
+    visible: true
+    learner_created: true
+  - name: src/minesweeper/ui/CommandInterface.java
+    visible: true
+    learner_created: true
+feedback_link: https://hyperskill.org/projects/77/stages/426/implement#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Fri, 14 Feb 2025 21:18:27 UTC"
+record: -1
