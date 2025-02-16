@@ -15,9 +15,9 @@ files:
   - name: src/minesweeper/entity/Cell.java
     visible: true
     learner_created: true
-feedback_link: https://hyperskill.org/projects/77/stages/427/implement#comment
+feedback_link: https://hyperskill.org/learn/step/7201#comment
 status: Solved
 feedback:
   message: Congratulations!
   time: "Fri, 14 Feb 2025 22:02:02 UTC"
-record: -1
+record: 2

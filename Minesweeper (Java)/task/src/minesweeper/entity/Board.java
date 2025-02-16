@@ -7,7 +7,7 @@ import java.util.Random;
 public class Board {
     int BOARD_SIZE = 9;
     // A 9x9 2D array.
-    private List<List<Cell>> boardMatrix = new ArrayList<>(9);
+    private List<List<Cell>> boardMatrix = new ArrayList<>(BOARD_SIZE);
     private final int numMines;
     Random random = new Random();
 
@@ -38,6 +38,8 @@ public class Board {
                 break;
             }
         }
+        // Counting the number of mines
+        countNeighbourhoodMines();
     }
 
     public void printBoard() {
@@ -45,6 +47,8 @@ public class Board {
             for (Cell cell : row) {
                 if (cell.isMine()) {
                     System.out.print("X");
+                } else if (cell.getNeighbourhoodMines() > 0) {
+                    System.out.printf("%d", cell.getNeighbourhoodMines());
                 } else {
                     System.out.print(".");
                 }
@@ -52,4 +56,41 @@ public class Board {
             System.out.println();
         }
     }
+    
+    /* The method iterates over the 2d array checking if the cells next to the current cell are mines
+    * We must be careful with the corners and edges since we could get a NullPointerException
+    */
+    public void countNeighbourhoodMines() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                // Skip if current cell is a mine
+                if (boardMatrix.get(i).get(j).isMine()) {
+                    continue;
+                }
+
+                int mineCount = 0;
+
+                // Check previous row
+                if (i > 0) {
+                    if (j > 0 && boardMatrix.get(i-1).get(j-1).isMine()) mineCount++;      // Top-left
+                    if (boardMatrix.get(i-1).get(j).isMine()) mineCount++;                 // Top
+                    if (j < BOARD_SIZE-1 && boardMatrix.get(i-1).get(j+1).isMine()) mineCount++; // Top-right
+                }
+
+                // Check current row
+                if (j > 0 && boardMatrix.get(i).get(j-1).isMine()) mineCount++;           // Left
+                if (j < BOARD_SIZE-1 && boardMatrix.get(i).get(j+1).isMine()) mineCount++; // Right
+
+                // Check next row
+                if (i < BOARD_SIZE-1) {
+                    if (j > 0 && boardMatrix.get(i+1).get(j-1).isMine()) mineCount++;      // Bottom-left
+                    if (boardMatrix.get(i+1).get(j).isMine()) mineCount++;                 // Bottom
+                    if (j < BOARD_SIZE-1 && boardMatrix.get(i+1).get(j+1).isMine()) mineCount++; // Bottom-right
+                }
+
+                boardMatrix.get(i).get(j).addNeighbourhoodMines(mineCount);
+            }
+        }
+    }
+
 }
