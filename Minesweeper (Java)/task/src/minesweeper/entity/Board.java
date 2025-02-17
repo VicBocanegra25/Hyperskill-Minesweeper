@@ -43,18 +43,26 @@ public class Board {
     }
 
     public void printBoard() {
-        for (List<Cell> row : boardMatrix) {
-            for (Cell cell : row) {
-                if (cell.isMine()) {
-                    System.out.print("X");
+        System.out.println(" |123456789|");
+        System.out.println("-|---------|");
+
+        for (int i = 0; i < boardMatrix.size(); i++) {
+            System.out.print((i + 1) + "|"); // Row number
+
+            for (Cell cell : boardMatrix.get(i)) {
+                if (cell.isMarked()) {
+                    System.out.print("*");
                 } else if (cell.getNeighbourhoodMines() > 0) {
-                    System.out.printf("%d", cell.getNeighbourhoodMines());
+                    System.out.print(cell.getNeighbourhoodMines());
                 } else {
                     System.out.print(".");
                 }
             }
-            System.out.println();
+            System.out.println("|");
         }
+
+        // Print bottom border
+        System.out.println("-|---------|");
     }
     
     /* The method iterates over the 2d array checking if the cells next to the current cell are mines
@@ -91,6 +99,34 @@ public class Board {
                 boardMatrix.get(i).get(j).addNeighbourhoodMines(mineCount);
             }
         }
+    }
+
+    public mineStatus markCell(int[] coordinates) {
+        // If the field indicating neighbourhood mines is larger than 0, it means there are no mines here, but numbers
+        Cell currentCell = boardMatrix.get(coordinates[1] - 1).get(coordinates[0] - 1);
+        if (currentCell.getNeighbourhoodMines()> 0) {
+            return mineStatus.IS_NUMBER;
+        }
+        currentCell.changeMarked();
+        return mineStatus.MARKED;
+    }
+
+    public enum mineStatus {
+        IS_NUMBER, IS_MINE, MARKED;
+    }
+
+    public boolean verifyIfMinesAreCovered() {
+        int marks = 0;
+        for (List<Cell> row: boardMatrix) {
+            for (Cell cell : row) {
+                if (cell.isMarked() && cell.isMine()) {
+                    marks++;
+                } else if (cell.isMarked() && !cell.isMine()) {
+                    marks--;
+                }
+            }
+        }
+        return marks == numMines;
     }
 
 }
