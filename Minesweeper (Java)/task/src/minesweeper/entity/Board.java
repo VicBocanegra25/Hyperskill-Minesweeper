@@ -1,8 +1,6 @@
 package minesweeper.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Board {
     int BOARD_SIZE = 9;
@@ -10,6 +8,13 @@ public class Board {
     private List<List<Cell>> boardMatrix = new ArrayList<>(BOARD_SIZE);
     private final int numMines;
     Random random = new Random();
+    private boolean firstMove = true;
+
+    public enum GameStatus {
+        CONTINUE,
+        WIN,
+        LOSE
+    }
 
     public Board(int numMines) {
         this.numMines = numMines;
@@ -17,54 +22,146 @@ public class Board {
     }
 
     private void prepareBoard() {
-        // Iterating over the board, initializing cells at each position and randomizing mines
-        for (int i = 0; i < BOARD_SIZE ; i++) {
-            List<Cell> rows = new ArrayList<>(boardMatrix.size());
+        // Initialize empty board without mines
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            boardMatrix.add(new ArrayList<>());
             for (int j = 0; j < BOARD_SIZE; j++) {
-                rows.add(new Cell());
-            }
-            boardMatrix.add(rows);
-        }
-        // Setting up the mines
-        for (int i = 0; i < numMines; i++) {
-            // We need to account for mines already set up
-            while (true) {
-                int randomX = random.nextInt(9);
-                int randomY = random.nextInt(9);
-                if (boardMatrix.get(randomX).get(randomY).isMine()) {
-                    continue;
-                }
-                boardMatrix.get(randomX).get(randomY).setMine(true);
-                break;
+                boardMatrix.get(i).add(new Cell());
             }
         }
-        // Counting the number of mines
+    }
+
+    private void placeMines(int excludeX, int excludeY) {
+
+        int minesPlaced = 0;
+        while (minesPlaced < numMines) {
+            int x = random.nextInt(BOARD_SIZE);
+            int y = random.nextInt(BOARD_SIZE);
+
+            // Skip the first clicked cell and cells that already have mines
+            if ((x == excludeX && y == excludeY) || boardMatrix.get(y).get(x).isMine()) {
+                continue;
+            }
+
+            boardMatrix.get(y).get(x).setMine(true);
+            minesPlaced++;
+        }
         countNeighbourhoodMines();
+    }
+
+    public GameStatus makeMove(int x, int y, boolean isFreeCommand) {
+        if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+            return GameStatus.CONTINUE; // Invalid move
+        }
+
+        Cell cell = boardMatrix.get(y).get(x);
+
+        if (isFreeCommand) {
+            if (firstMove) {
+                placeMines(x, y);
+                firstMove = false;
+            }
+
+            if (cell.isMine()) {
+                revealAllMines();
+                return GameStatus.LOSE;
+            }
+
+            if (!cell.isMarked()) {
+                floodFill(x, y);
+            }
+        } else {
+            // Toggle mark
+            cell.changeMarked();
+        }
+
+        return checkGameStatus();
+    }
+
+    private void floodFill(int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int currentX = current[0];
+            int currentY = current[1];
+
+            if (currentX < 0 || currentX >= BOARD_SIZE || currentY < 0 || currentY >= BOARD_SIZE) {
+                continue;
+            }
+
+            Cell currentCell = boardMatrix.get(currentY).get(currentX);
+            if (currentCell.isRevealed() || currentCell.isMine()) {
+                continue;
+            }
+
+            currentCell.setRevealed(true);
+            currentCell.setMarked(false);
+
+            // If cell has no adjacent mines, explore neighbors
+            if (currentCell.getNeighbourhoodMines() == 0) {
+                // Add all 8 neighbors to queue
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        if (dx == 0 && dy == 0) continue;
+                        queue.offer(new int[]{currentX + dx, currentY + dy});
+                    }
+                }
+            }
+        }
+    }
+
+    private void revealAllMines() {
+        for (List<Cell> row : boardMatrix) {
+            for (Cell cell : row) {
+                if (cell.isMine()) {
+                    cell.setRevealed(true);
+                }
+            }
+        }
+    }
+
+    private GameStatus checkGameStatus() {
+        boolean allSafeCellsRevealed = true;
+        boolean allMinesMarkedCorrectly = true;
+
+        for (List<Cell> row : boardMatrix) {
+            for (Cell cell : row) {
+                if (cell.isMine()) {
+                    if (!cell.isMarked()) {
+                        allMinesMarkedCorrectly = false;
+                    }
+                } else {
+                    if (!cell.isRevealed()) {
+                        allSafeCellsRevealed = false;
+                    }
+                    if (cell.isMarked()) {
+                        allMinesMarkedCorrectly = false;
+                    }
+                }
+            }
+        }
+
+        if (allMinesMarkedCorrectly || allSafeCellsRevealed) {
+            return GameStatus.WIN;
+        }
+        return GameStatus.CONTINUE;
     }
 
     public void printBoard() {
         System.out.println(" |123456789|");
         System.out.println("-|---------|");
-
-        for (int i = 0; i < boardMatrix.size(); i++) {
-            System.out.print((i + 1) + "|"); // Row number
-
-            for (Cell cell : boardMatrix.get(i)) {
-                if (cell.isMarked()) {
-                    System.out.print("*");
-                } else if (cell.getNeighbourhoodMines() > 0) {
-                    System.out.print(cell.getNeighbourhoodMines());
-                } else {
-                    System.out.print(".");
-                }
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            System.out.print((i + 1) + "|");
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                System.out.print(boardMatrix.get(i).get(j).getDisplayChar());
             }
             System.out.println("|");
         }
-
-        // Print bottom border
         System.out.println("-|---------|");
     }
-    
+
     /* The method iterates over the 2d array checking if the cells next to the current cell are mines
     * We must be careful with the corners and edges since we could get a NullPointerException
     */
@@ -99,34 +196,6 @@ public class Board {
                 boardMatrix.get(i).get(j).addNeighbourhoodMines(mineCount);
             }
         }
-    }
-
-    public mineStatus markCell(int[] coordinates) {
-        // If the field indicating neighbourhood mines is larger than 0, it means there are no mines here, but numbers
-        Cell currentCell = boardMatrix.get(coordinates[1] - 1).get(coordinates[0] - 1);
-        if (currentCell.getNeighbourhoodMines()> 0) {
-            return mineStatus.IS_NUMBER;
-        }
-        currentCell.changeMarked();
-        return mineStatus.MARKED;
-    }
-
-    public enum mineStatus {
-        IS_NUMBER, IS_MINE, MARKED;
-    }
-
-    public boolean verifyIfMinesAreCovered() {
-        int marks = 0;
-        for (List<Cell> row: boardMatrix) {
-            for (Cell cell : row) {
-                if (cell.isMarked() && cell.isMine()) {
-                    marks++;
-                } else if (cell.isMarked() && !cell.isMine()) {
-                    marks--;
-                }
-            }
-        }
-        return marks == numMines;
     }
 
 }

@@ -1,37 +1,67 @@
 package minesweeper.ui;
 
 import minesweeper.entity.Board;
-
 import java.util.Scanner;
 
 public class CommandInterface {
-    Board myBoard;
-    Scanner scan = new Scanner(System.in);
+    private final Board board;
+    private final Scanner scanner;
+
+    public CommandInterface() {
+        scanner = new Scanner(System.in);
+        System.out.println("How many mines do you want on the field?");
+        int mineCount = Integer.parseInt(scanner.nextLine());
+        board = new Board(mineCount);
+    }
 
     public void startGame() {
-        myBoard = new Board(requestMineNumberFromUser());
-        myBoard.printBoard();
+        board.printBoard();
+
         while (true) {
-            if (myBoard.markCell(askForCoordinates()).equals(Board.mineStatus.IS_NUMBER)) {
-                System.out.println("There is a number here!");
+            System.out.println("Set/unset mines marks or claim a cell as free:");
+            String[] input = scanner.nextLine().split("\\s+");
+
+            if (input.length != 3) {
+                continue;
             }
-            myBoard.printBoard();
-            if (myBoard.verifyIfMinesAreCovered()) {
-                System.out.println("Congratulations! You found all the mines!");
-                break;
+
+            try {
+                int x = Integer.parseInt(input[0]) - 1; // Convert to 0-based indexing
+                int y = Integer.parseInt(input[1]) - 1;
+                String command = input[2].toLowerCase();
+
+                if (!isValidCoordinate(x, y)) {
+                    continue;
+                }
+
+                Board.GameStatus status;
+                if (command.equals("free")) {
+                    status = board.makeMove(x, y, true);
+                } else if (command.equals("mine")) {
+                    status = board.makeMove(x, y, false);
+                } else {
+                    System.out.println("Invalid command! Use 'free' or 'mine'");
+                    continue;
+                }
+
+                board.printBoard();
+
+                if (status == Board.GameStatus.WIN) {
+                    System.out.println("Congratulations! You found all the mines!");
+                    break;
+                } else if (status == Board.GameStatus.LOSE) {
+                    System.out.println("You stepped on a mine and failed!");
+                    break;
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Coordinates should be numbers!");
             }
         }
+        scanner.close();
     }
 
-    public int requestMineNumberFromUser() {
-        System.out.println("How many mines do you want on the field?");
-        return Integer.parseInt(scan.nextLine());
-
-    }
-
-    public int[] askForCoordinates() {
-        System.out.println("Set/delete mines marks (x and y coordinates):");
-        String[] userInput = scan.nextLine().split(" ");
-        return new int[]{Integer.parseInt(userInput[0]), Integer.parseInt(userInput[1])};
+    private boolean isValidCoordinate(int x, int y) {
+        return x >= 0 && x < 9 && y >= 0 && y < 9;
     }
 }
